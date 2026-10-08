@@ -13,6 +13,7 @@ module.exports = (app) => {
     router.post("/ongrid", verifyToken, ctrl.pv);
     router.post("/offgrid", verifyToken, ctrl.pv);
     router.post("/pv", verifyToken, ctrl.pv);
+    router.post('/set-voltage', commandController.setVoltage);
     
     app.use('/command', router);
 
