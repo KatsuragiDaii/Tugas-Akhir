@@ -8,7 +8,7 @@ import SimToggle from "~/components/control/SimToggle";
 import { pltsPraktikum } from "~/json/plts-praktikum-json";
 
 // Nilai awal simulator; juga dipakai tombol "Reset Parameter"
-const DEFAULTS = { tilt: 40, intensity: 800, fan: 2, heater: false };
+const DEFAULTS = { tilt: 40, intensity: 800, fan: false, heater: false };
 
 // Halaman /plts: simulator PLTS di kiri, kontrol di kanan.
 // Kontrol hanya mengatur simulasi di halaman ini. Belum ada perintah yang dikirim ke alat.
@@ -62,8 +62,8 @@ export default function ContentPLTS() {
             value={intensity()}
             onInput={setIntensity}
           />
-          <SliderControl label="Level Kipas" min={1} max={3} value={fan()} onInput={setFan} />
 
+          <SimToggle label="Fan/Kipas" checked={fan()} onChange={setFan} />
           <SimToggle label="Heater/Pemanas" checked={heater()} onChange={setHeater} />
 
           <button
