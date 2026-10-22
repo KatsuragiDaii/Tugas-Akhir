@@ -14,6 +14,11 @@ export default function MainLayoutResponsive(props) {
     const navigate = useNavigate();
     const { auth, loadUser } = UseAuthCtx();
 
+    // Halaman yang sudah memakai tampilan baru (header sendiri, tanpa MyNavBar putih).
+    // Untuk menerapkan ke halaman lain, tambahkan path-nya di sini.
+    const REDESIGNED_PATHS = ["/plts"];
+    const redesigned = () => REDESIGNED_PATHS.includes(location.pathname.replace(/\/+$/, ""));
+
     onMount(
         async () => {
             loadUser()
@@ -45,10 +50,12 @@ export default function MainLayoutResponsive(props) {
             {/* Main Content */}
             <div class="flex-1 flex flex-col overflow-hidden">
                 {/* Header with toggle button */}
-                <MyNavBar />
+                <Show when={!redesigned()}>
+                    <MyNavBar />
+                </Show>
 
                 {/* Page content */}
-                <main class="flex-1 w-full min-h-auto overflow-y-auto bg-gray-100 p-4xx">
+                <main class={`flex-1 w-full min-h-auto overflow-y-auto p-4xx ${redesigned() ? "bg-sisgrid-bg" : "bg-gray-100"}`}>
                     <div class="mt-x">
                         {/* Your main content goes here */}
                         <Toaster />
