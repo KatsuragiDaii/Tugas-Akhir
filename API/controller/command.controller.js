@@ -6,18 +6,21 @@ const publish = (token, command, data, request, response) => {
     const actualToken = token.startsWith('Bearer ') ? token.slice(7, token.length) : token;
 
     jwt.verify(actualToken, process.env.SECRET_KEY, async (err, decoded) => {
-        console.log(err, decoded)
         if (err) {
             response.status(403).send({
                 error: true,
                 message: err.message || `Some error occurred while retrieving Test .`
             });
-        } else {
-            // request.userId = decoded.id;
+            return;
+        }
+        // Dulu tanpa try/catch: bila MQTT belum tersambung, error di sini menjadi
+        // unhandled rejection dan mematikan seluruh proses Node.
+        try {
             const result = await mqttEmiter({ command, data })
-            console.log(command, data)
-            // response.json({ id: request.userId, role: decoded.role, data: request.body })
             response.json(result)
+        } catch (error) {
+            console.error("controller/command.controller.js:publish", error.message);
+            response.status(503).send({ error: true, message: error.message });
         }
     });
 }

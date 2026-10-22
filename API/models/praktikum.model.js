@@ -1,4 +1,6 @@
-const sql = require("../models/user.model");
+// Dulu: require("../models/user.model") -> objek itu tidak punya .query, sehingga semua
+// fungsi di file ini error. Yang benar adalah koneksi database.
+const sql = require("./db.model");
 
 // constructor
 const Row = function (Row) {
@@ -10,7 +12,7 @@ const Row = function (Row) {
 Row.tabelName = `praktikum`
 
 Row.create = () => {
-    let query = `CREATE TABLE IF NOT EXISTS ${Row.tabelName}
+    const query = `CREATE TABLE IF NOT EXISTS ${Row.tabelName}
         ( 
             id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, 
             name varchar(255) NOT NULL, 
@@ -19,19 +21,15 @@ Row.create = () => {
             url varchar(255) DEFAULT 'KABUPATEN MINAHASA TENGGARA' 
         ) 
         ENGINE=InnoDB DEFAULT CHARSET=utf8;`
-    try {
-        sql.query(query);
-    } catch {
-        error => {
-            console.log(error);
-        }
-    }
+    sql.query(query, (err) => {
+        if (err) console.log("praktikum.model.js:create error:", err.code, err.message);
+    });
 }
 
 Row.insert = (tabelName, newData, result) => {
     sql.query(`INSERT INTO ${Row.tabelName} SET ?`, newData, (err, res) => {
         if (err) {
-            console.log("error: ", err);
+            console.log("error: ", err.code, err.message);
             result(err, null);
             return;
         }
@@ -42,15 +40,14 @@ Row.insert = (tabelName, newData, result) => {
 };
 
 Row.findById = (id, result) => {
-    sql.query(`SELECT * FROM ${Row.tabelName} WHERE id = ${id}`, (err, res) => {
+    sql.query(`SELECT * FROM ${Row.tabelName} WHERE id = ?`, [id], (err, res) => {
         if (err) {
-            console.log("error: ", err);
+            console.log("error: ", err.code, err.message);
             result(err, null);
             return;
         }
 
         if (res.length) {
-            console.log("found Row: ", res[0]);
             result(null, res[0]);
             return;
         }
@@ -61,27 +58,23 @@ Row.findById = (id, result) => {
 };
 
 Row.getAll = (params, result) => {
-
-    // let query = `SELECT * FROM ${Row.tabelName}`
-    let query = `SELECT * FROM ${Row.tabelName} `
-    query = query + 'WHERE `group` = "pscs"'
-    sql.query(query, (err, res) => {
+    // Dulu ada  WHERE `group` = "pscs"  padahal tabel praktikum tidak punya kolom `group`,
+    // sehingga query ini selalu error. Filter dihapus.
+    sql.query(`SELECT * FROM ${Row.tabelName} `, (err, res) => {
         if (err) {
-            console.log("error: ", err);
-            result(null, err);
+            console.log("error: ", err.code, err.message);
+            result(err, null);
             return;
         }
-
-        console.log("plant.model.js:getAll", res);
         result(null, res);
     });
 };
 
 Row.remove = (id, result) => {
-    sql.query(`DELETE FROM ${Row.tabelName} WHERE id = ?`, id, (err, res) => {
+    sql.query(`DELETE FROM ${Row.tabelName} WHERE id = ?`, [id], (err, res) => {
         if (err) {
-            console.log("error: ", err);
-            result(null, err);
+            console.log("error: ", err.code, err.message);
+            result(err, null);
             return;
         }
 
@@ -99,8 +92,8 @@ Row.remove = (id, result) => {
 Row.removeAll = result => {
     sql.query(`DELETE FROM ${Row.tabelName}`, (err, res) => {
         if (err) {
-            console.log("error: ", err);
-            result(null, err);
+            console.log("error: ", err.code, err.message);
+            result(err, null);
             return;
         }
 
