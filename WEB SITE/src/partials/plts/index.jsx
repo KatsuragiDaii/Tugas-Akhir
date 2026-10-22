@@ -1,110 +1,96 @@
-import { Index } from "solid-js";
-import { createSignal } from "solid-js";
-import { useNavigate } from "@solidjs/router";
-// import Card from "~/components/Card";
+import { createSignal, For } from "solid-js";
+import { A } from "@solidjs/router";
+import PageHeader from "~/components/PageHeader";
+import { SunIcon } from "~/components/icons";
+import Simulator3D from "~/components/simulator/Simulator3D";
+import SliderControl from "~/components/control/SliderControl";
+import SimToggle from "~/components/control/SimToggle";
+import { pltsPraktikum } from "~/json/plts-praktikum-json";
 
-const items = [
-  {
-    title: "PV",
-    description: "PV simulation practical",
-    extraInfo: `Praktikum PLTS PV (Photovoltaic) dirancang untuk memberikan pemahaman yang mendalam mengenai prinsip kerja modul surya melalui pengujian terhadap kinerja komponen utama, yaitu panel surya dan lampu sorot sebagai sumber cahaya pengganti sinar matahari, serta perangkat pendukung seperti pemanas (heater) dan kipas (fan). Selain itu, praktikum ini juga mengeksplorasi berbagai faktor yang mempengaruhi produksi energi listrik, di antaranya sudut kemiringan panel surya dan tingkat intensitas cahaya dari lampu yang digunakan.
-Dalam praktikum ini, mahasiswa akan mempelajari:
-- Analisis karakteristik modul surya seperti tegangan, arus, dan daya.
-- Penerapan alat ukur untuk menentukan efisiensi sistem PV.
-Praktikum ini menjadi dasar penting untuk memahami teknologi energi terbarukan terutama pada pemanfaatan energi surya.`,
-    url: "/plts/pv",
-    imageUrl: "/plts.jpg",
+// Nilai awal simulator; juga dipakai tombol "Reset Parameter"
+const DEFAULTS = { tilt: 40, intensity: 800, fan: 2, heater: false };
 
-  },
-  {
-    title: "Off-Grid",
-    description: "Off-Grid simulation practical",
-    extraInfo: `Praktikum PLTS Off-Grid berfokus pada sistem tenaga surya yang bekerja secara mandiri tanpa terhubung ke jaringan listrik utama (grid). 
-Mahasiswa akan belajar:
-- Merancang sistem off-grid, termasuk baterai, inverter, dan pengendali beban.
-- Menentukan kebutuhan daya sesuai aplikasi sistem otonom.
-- Melakukan pengujian terhadap kinerja sistem dalam berbagai kondisi beban.
+// Halaman /plts: simulator PLTS di kiri, kontrol di kanan.
+// Kontrol hanya mengatur simulasi di halaman ini. Belum ada perintah yang dikirim ke alat.
+export default function ContentPLTS() {
 
-Praktikum ini sangat relevan untuk penerapan di daerah terpencil yang tidak terjangkau oleh jaringan listrik konvensional.`,
-    url: "/plts/offgrid",
-    imageUrl: "/offgrid.jpg",
+  const [tilt, setTilt] = createSignal(DEFAULTS.tilt);
+  const [intensity, setIntensity] = createSignal(DEFAULTS.intensity);
+  const [fan, setFan] = createSignal(DEFAULTS.fan);
+  const [heater, setHeater] = createSignal(DEFAULTS.heater);
 
-  },
-  {
-    title: "On-Grid",
-    description: "On-Grid simulation practical",
-    extraInfo: `Praktikum PLTS On-Grid mengajarkan bagaimana sistem tenaga surya terintegrasi dengan jaringan listrik utama. 
-Dalam praktikum ini, mahasiswa akan mempelajari:
-- Prinsip kerja inverter grid-tied yang menyinkronkan daya surya dengan jaringan listrik.
-- Perhitungan efisiensi sistem on-grid dan analisis energi yang dikirim ke atau diterima dari jaringan.
-- Studi kasus pemasangan dan pengoperasian PLTS untuk keperluan rumah tangga dan industri.
-
-Praktikum ini memberikan wawasan mengenai implementasi energi terbarukan pada skala besar.`,
-    url: "/plts/ongrid",
-    imageUrl: "/ongrid.jpg",
-  },
-];
-
-function Card(props) {
-  const navigate = useNavigate();
-  const [showInfo, setShowInfo] = createSignal(false);
+  const reset = () => {
+    setTilt(DEFAULTS.tilt);
+    setIntensity(DEFAULTS.intensity);
+    setFan(DEFAULTS.fan);
+    setHeater(DEFAULTS.heater);
+  };
 
   return (
-    <div class="relative bg-gray-900 text-white rounded-lg overflow-hidden shadow-lg w-full max-w-mdx">
-      {/* Gambar Card */}
-      <div class="relative">
-        <img src={props.imageUrl} alt={props.title} class="object-cover w-full h-40 opacity-70" />
+    <div class="font-poppins text-sisgrid-ink animate-in fade-in duration-500 flex flex-col gap-5 px-2 py-5 sm:px-6">
 
-        {/* Tanda seru (!), klik untuk menampilkan informasi */}
-        <button
-          class="absolute top-2 right-2 bg-black text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center"
-          onClick={() => setShowInfo(!showInfo())}
-        >
-          {/* <p>{showInfo()? "show" : "hide"}</p> */}
-          !
-        </button>
-      </div>
+      <PageHeader
+        title="Pembangkit Listrik Tenaga Surya"
+        icon={<SunIcon class="w-11 h-11 lg:w-14 lg:h-14" />}
+      />
 
-      {/* Konten Utama */}
-      <div class="p-4">
-        <h2 class="text-xl font-bold">{props.title}</h2>
-        <p>{props.description}</p>
-        <button
-          onClick={() => navigate(props.url)}
-          class="mt-2 px-3 py-1 text-sm text-white bg-blue-500 rounded hover:bg-blue-600"
-        >
-          Click here
-        </button>
-      </div>
+      <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(300px,342px)]">
 
-      {/* Informasi Tambahan */}
-      {showInfo() && (
-        <div class="p-4 bg-gray-100 text-sm text-gray-900 mt-2 rounded whitespace-pre-line">
-          {props.extraInfo}
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default function ContentDashboard() {
-  let delay = 0;
-  return (
-    <div class="flex flex-wrap gap-6 h-full w-full justify-center px-10 py-6">
-      <Index each={items}>
-        {(item, index) => (
-          <div class="relative p-4">
-            <Card
-              animation={`animate-in fade-in zoom-in delay-${(delay += 100 * (index + 1))} duration-300`}
-              title={item().title}
-              description={item().description}
-              extraInfo={item().extraInfo}
-              imageUrl={item().imageUrl}
-              url={item().url}
+        <section class="rounded-3xl border-2 border-sisgrid-line bg-white p-6" aria-labelledby="sim-title">
+          <h2 id="sim-title" class="text-2xl font-bold">Simulator 3D</h2>
+          <div class="mt-2 flex justify-center">
+            <Simulator3D
+              class="h-[320px] w-auto max-w-full"
+              tilt={tilt()}
+              intensity={intensity()}
+              fan={fan()}
+              heater={heater()}
             />
           </div>
-        )}
-      </Index>
+        </section>
+
+        <section class="flex flex-col gap-4 rounded-3xl border-2 border-sisgrid-line bg-white p-6" aria-labelledby="ctl-title">
+          <h2 id="ctl-title" class="text-[26px] font-bold leading-tight">Kontrol Simulator</h2>
+
+          <SliderControl label="Kemiringan Panel" unit="°" min={0} max={90} value={tilt()} onInput={setTilt} />
+          <SliderControl
+            label="Intensitas Cahaya"
+            unit="W/m²"
+            min={0}
+            max={1200}
+            step={50}
+            value={intensity()}
+            onInput={setIntensity}
+          />
+          <SliderControl label="Level Kipas" min={1} max={3} value={fan()} onInput={setFan} />
+
+          <SimToggle label="Heater/Pemanas" checked={heater()} onChange={setHeater} />
+
+          <button
+            type="button"
+            onClick={reset}
+            class="rounded-lg bg-sisgrid-maroon px-4 py-3 text-[15px] font-bold text-white transition hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sisgrid-maroon"
+          >
+            Reset Parameter
+          </button>
+        </section>
+      </div>
+
+      {/* Halaman praktikum PLTS dengan alat sungguhan (dulu berupa kartu di halaman ini) */}
+      <nav aria-label="Praktikum PLTS" class="flex flex-wrap items-center gap-2 text-sm">
+        <span class="font-medium text-gray-600">Buka praktikum:</span>
+        <For each={pltsPraktikum}>
+          {(item) => (
+            <A
+              href={item.url}
+              title={item.description}
+              class="rounded-full border-2 border-sisgrid px-4 py-1 font-semibold text-sisgrid transition-colors hover:bg-sisgrid hover:text-white"
+            >
+              {item.title}
+            </A>
+          )}
+        </For>
+      </nav>
     </div>
   );
 }

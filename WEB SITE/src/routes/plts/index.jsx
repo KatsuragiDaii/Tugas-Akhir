@@ -11,7 +11,7 @@ export default function PLTS() {
   const { auth } = UseAuthCtx()
 
   return (
-    <ContentLayout title={"PLTS"} >
+    <ContentLayout title={"PLTS"} bg="bg-sisgrid-bg">
       {auth() ? <ContentPLTS /> : navigate(import.meta.env.VITE_REDIRECT_TO_LOGIN)}
     </ContentLayout>
   );

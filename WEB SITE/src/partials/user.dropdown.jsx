@@ -21,7 +21,7 @@ export default function UserDropdown(props) {
     }
 
     return (
-        <div class={`absolute z-10 right-4 mt-48 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 ${props.hidden ? "hidden" : ""}`}>
+        <div class={`absolute z-20 right-0 top-full mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 ${props.hidden ? "hidden" : ""}`}>
             <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                 <Item label={"Profile"} url={"/profile"} />
                 <Show when={ auth() && ["root","admin", "dosen", "asisten"].findIndex( role => role === auth().role) > 0 }>

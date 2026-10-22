@@ -17,7 +17,7 @@ export default function ContentLayout(props) {
     // 3. Bungkus elemen yang bermasalah dengan <Show> agar
     // Server dan Browser merender hal yang sama di detik pertama.
     <Show when={isMounted()}>
-      <div class="min-h-screen w-full px-4 py-2 bg-gray-100">
+      <div class={`min-h-screen w-full px-4 py-2 ${props.bg || "bg-gray-100"}`}>
         {/* Konten layout asli Anda (navbar, sidebar, children) */}
         {props.children}
       </div>

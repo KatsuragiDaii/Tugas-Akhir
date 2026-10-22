@@ -1,3 +1,80 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ---------- Slider kontrol simulator (SliderControl.jsx) ----------
+   Bagian terisi dibuat dari gradient; lebarnya diatur lewat variabel --fill
+   (persen) yang diisi dari komponen. */
+.sisgrid-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(
+    to right,
+    #004d5c 0%,
+    #004d5c var(--fill, 50%),
+    #e6e6e6 var(--fill, 50%),
+    #e6e6e6 100%
+  );
+}
+
+.sisgrid-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #004d5c;
+  border: 0;
+  cursor: pointer;
+}
+
+.sisgrid-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #004d5c;
+  border: 0;
+  cursor: pointer;
+}
+
+.sisgrid-range:focus-visible {
+  box-shadow: 0 0 0 3px rgba(0, 77, 92, 0.3);
+}
+
+/* ---------- Animasi simulator (Simulator3D.jsx) ---------- */
+@keyframes sim-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sim-heat {
+  0%, 100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* Berputar mengelilingi titik pusat kipas; transform-origin dan durasi diatur dari komponen */
+.sim-spin {
+  transform-box: view-box;
+  animation: sim-spin linear infinite;
+}
+
+.sim-heat {
+  animation: sim-heat 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sim-spin,
+  .sim-heat {
+    animation: none;
+  }
+}
