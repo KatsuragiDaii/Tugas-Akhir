@@ -3,9 +3,10 @@ import { UseDataCtx } from "~/context/data.context";
 import { SOCKET_TAG } from "~/json/socket-tag-json";
 import { PV_TAG } from "~/json/pv-tag-json";
 
-// Jarak minimal antar titik riwayat dan jumlah titik yang disimpan untuk grafik
+// Jarak minimal antar titik riwayat dan jumlah titik yang disimpan (3600 titik x 2 detik =
+// sekitar 2 jam). Grafik hanya menampilkan sebagian terakhir; sisanya untuk export CSV.
 const SAMPLE_MS = 2000;
-const MAX_POINTS = 30;
+const RECORD_LIMIT = 3600;
 
 // Data dari alat bisa berupa angka atau string ("12.50"); nilai tak valid dianggap 0
 const num = (value) => {
@@ -19,8 +20,9 @@ const num = (value) => {
 //   readings() -> { temperature, humidity, light, voltage, current, power }
 //                 semuanya 0 selama belum ada data dari alat; power = voltage x current
 //   history()  -> [{ t, ...readings }] urut waktu. Satu titik per pesan baru, minimal
-//                 SAMPLE_MS antar titik, maksimal MAX_POINTS. Kosong selama belum ada
-//                 data, dan berhenti bertambah bila alat berhenti mengirim.
+//                 SAMPLE_MS antar titik, maksimal RECORD_LIMIT (yang terlama dibuang).
+//                 Kosong selama belum ada data, dan berhenti bertambah bila alat berhenti
+//                 mengirim. Hilang saat komponen dilepas (pindah halaman / refresh).
 export function createPltsReadings() {
     const { data } = UseDataCtx();
 
@@ -49,7 +51,7 @@ export function createPltsReadings() {
         setHistory((prev) => {
             const last = prev[prev.length - 1];
             if (last && point.t - last.t < SAMPLE_MS) return prev;
-            return [...prev, point].slice(-MAX_POINTS);
+            return [...prev, point].slice(-RECORD_LIMIT);
         });
     });
 

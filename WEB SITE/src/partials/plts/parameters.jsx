@@ -1,9 +1,13 @@
 import { createMemo, createSignal, For } from "solid-js";
 import ParameterCard from "~/components/ParameterCard";
 import PltsActivityChart from "~/components/chart/PltsActivityChart";
-import { ChevronDownIcon, ParamIcon } from "~/components/icons";
+import { ChevronDownIcon, DownloadIcon, ParamIcon } from "~/components/icons";
 import { DEFAULT_PARAMETER, PLTS_PARAMETERS } from "~/json/plts-parameter-json";
+import { downloadPltsCsv } from "~/lib/plts-export";
 import { createPltsReadings } from "~/lib/plts-readings";
+
+// Jumlah titik yang digambar di grafik; seluruh riwayat tetap ikut di export CSV
+const CHART_POINTS = 30;
 
 // Satu angka desimal; nilai tak valid ditampilkan 0.0
 const format = (n) => (Number.isFinite(n) ? n : 0).toFixed(1);
@@ -18,7 +22,9 @@ export default function PltsParameters() {
   const metric = () => PLTS_PARAMETERS.find((p) => p.key === selected()) || PLTS_PARAMETERS[0];
 
   const series = createMemo(() =>
-    history().map((point) => ({ x: point.t, y: Math.round(point[metric().key] * 100) / 100 }))
+    history()
+      .slice(-CHART_POINTS)
+      .map((point) => ({ x: point.t, y: Math.round(point[metric().key] * 100) / 100 }))
   );
 
   return (
@@ -38,8 +44,20 @@ export default function PltsParameters() {
       </div>
 
       <div class="rounded-2xl border border-sisgrid-line bg-white px-5 py-4 font-poppins">
-        <div class="flex items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
           <h2 class="text-lg font-bold text-sisgrid-ink">PLTS Activity</h2>
+
+          <div class="flex items-center gap-2">
+          <button
+            type="button"
+            disabled={history().length === 0}
+            title={history().length === 0 ? "Belum ada data untuk diexport" : "Unduh semua parameter sebagai file CSV"}
+            onClick={() => downloadPltsCsv(history())}
+            class="inline-flex items-center gap-1.5 rounded-md border border-sisgrid px-3 py-1.5 text-xs font-semibold text-sisgrid transition-colors hover:bg-sisgrid hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sisgrid disabled:cursor-not-allowed disabled:border-sisgrid-line disabled:text-gray-400 disabled:hover:bg-transparent disabled:hover:text-gray-400"
+          >
+            <DownloadIcon class="h-3.5 w-3.5" />
+            Export CSV
+          </button>
 
           <div class="relative">
             <label for="plts-activity-metric" class="sr-only">Parameter grafik</label>
@@ -59,11 +77,19 @@ export default function PltsParameters() {
             </select>
             <ChevronDownIcon class="pointer-events-none absolute right-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-sisgrid-ink" />
           </div>
+          </div>
         </div>
 
         <p class="mt-2 text-xs font-medium text-sisgrid">{metric().chartUnit}</p>
         <PltsActivityChart series={series()} name={metric().label} unit={metric().chartUnit} height={200} />
-        <p class="text-right text-xs font-medium text-sisgrid">Time</p>
+        <div class="flex items-center justify-between gap-3 text-xs">
+          <p class="text-gray-500" data-testid="record-count">
+            {history().length === 0
+              ? "Belum ada data dari alat"
+              : `${history().length} data tercatat sejak halaman ini dibuka`}
+          </p>
+          <p class="font-medium text-sisgrid">Time</p>
+        </div>
       </div>
     </section>
   );

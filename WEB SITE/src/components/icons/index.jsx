@@ -112,6 +112,14 @@ export function BoltIcon(props) {
   );
 }
 
+export function DownloadIcon(props) {
+  return (
+    <svg {...svgProps(props)} stroke-width="2.2">
+      <path d="M12 3.5v11M7.5 10.5 12 15l4.5-4.5M4.5 19.5h15" />
+    </svg>
+  );
+}
+
 export function ChevronDownIcon(props) {
   return (
     <svg {...svgProps(props)} stroke-width="2.5">
