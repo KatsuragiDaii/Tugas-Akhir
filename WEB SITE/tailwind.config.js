@@ -15,6 +15,7 @@ module.exports = {
           ink: "#1a1a1a",     // teks judul
           line: "#d9d9d9",    // garis tepi kartu
           maroon: "#5c0000",  // tombol reset
+          ghost: "#e3ebed",   // ikon latar samar pada kartu parameter
         },
       },
       fontFamily: {

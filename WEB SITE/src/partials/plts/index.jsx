@@ -5,6 +5,7 @@ import { SunIcon } from "~/components/icons";
 import Simulator3D from "~/components/simulator/Simulator3D";
 import SliderControl from "~/components/control/SliderControl";
 import SimToggle from "~/components/control/SimToggle";
+import PltsParameters from "./parameters";
 import { pltsPraktikum } from "~/json/plts-praktikum-json";
 
 // Nilai awal simulator; juga dipakai tombol "Reset Parameter"
@@ -75,6 +76,9 @@ export default function ContentPLTS() {
           </button>
         </section>
       </div>
+
+      {/* Parameter live dari alat (kartu + grafik); terpisah dari kontrol simulator di atas */}
+      <PltsParameters />
 
       {/* Halaman praktikum PLTS dengan alat sungguhan (dulu berupa kartu di halaman ini) */}
       <nav aria-label="Praktikum PLTS" class="flex flex-wrap items-center gap-2 text-sm">

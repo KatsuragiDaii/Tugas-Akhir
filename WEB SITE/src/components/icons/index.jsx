@@ -70,6 +70,68 @@ export function UserAvatarIcon(props) {
   );
 }
 
+// ---- Ikon kartu parameter PLTS (dipakai sebagai gambar latar samar) ----
+
+export function ThermometerIcon(props) {
+  return (
+    <svg {...svgProps(props)} stroke-width="1.5">
+      <path d="M9.5 14.6V5a2.5 2.5 0 0 1 5 0v9.6a4.3 4.3 0 1 1-5 0z" />
+      <path d="M12 9v8.2" />
+      <circle cx="12" cy="17.6" r="1.6" fill="currentColor" stroke="none" />
+      <path d="M16.5 6h2M16.5 9h2M16.5 12h2" />
+    </svg>
+  );
+}
+
+export function HumidityIcon(props) {
+  return (
+    <svg {...svgProps(props)} stroke-width="1.5">
+      <path d="M8.5 2.8c2.6 3.1 4.5 5.4 4.5 7.8a4.5 4.5 0 0 1-9 0c0-2.4 1.9-4.7 4.5-7.8z" />
+      <path d="M17 2c1.5 1.8 2.5 3.1 2.5 4.4a2.5 2.5 0 0 1-5 0c0-1.3 1-2.6 2.5-4.4z" />
+      <path d="M2.5 16.5c1.5-1.2 3-1.2 4.5 0s3 1.2 4.5 0 3-1.2 4.5 0 3 1.2 4.5 0" />
+      <path d="M2.5 20.5c1.5-1.2 3-1.2 4.5 0s3 1.2 4.5 0 3-1.2 4.5 0 3 1.2 4.5 0" />
+    </svg>
+  );
+}
+
+export function BulbIcon(props) {
+  return (
+    <svg {...svgProps(props)} stroke-width="1.5">
+      <path d="M12 4.5a5.5 5.5 0 0 0-3.2 10c.7.5 1.2 1.3 1.2 2.2v.5h4v-.5c0-.9.5-1.7 1.2-2.2A5.5 5.5 0 0 0 12 4.5z" />
+      <path d="M9.6 19.6h4.8M10.6 22h2.8" />
+      <path d="M12 1.2v1.4M4.6 4.2l1 1M19.4 4.2l-1 1M1.8 10.2h1.4M20.8 10.2h1.4" />
+    </svg>
+  );
+}
+
+export function BoltIcon(props) {
+  return (
+    <svg {...svgProps(props)}>
+      <path d="M13.6 1.8 4.8 13.4h5.6L9.4 22.2 19.2 9.8h-5.9z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function ChevronDownIcon(props) {
+  return (
+    <svg {...svgProps(props)} stroke-width="2.5">
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+
+// Dipetakan dari field `icon` di json/plts-parameter-json.jsx
+const PARAM_ICONS = {
+  thermometer: ThermometerIcon,
+  humidity: HumidityIcon,
+  bulb: BulbIcon,
+  bolt: BoltIcon,
+};
+
+export function ParamIcon(props) {
+  return <Dynamic component={PARAM_ICONS[props.name] || BoltIcon} class={props.class} />;
+}
+
 // Dipetakan dari field `icon` di json/menu-json.jsx
 const NAV_ICONS = {
   sun: SunIcon,
