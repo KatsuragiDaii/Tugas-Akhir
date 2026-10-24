@@ -36,22 +36,12 @@ exports.createTable = (periode) => {
     model.create(periode);
 }
 
-exports.findDaily = (request, response) => {
-    const params = {
+exports.findDaily = async (request, response) => {
+    let params = {
         group: request.query.group,
         date: request.query.date,
         periode: request.query.periode,
     }
-
-    // Validasi input dulu. Dulu group yang salah menyebabkan error tak tertangani
-    // di dalam fungsi async sehingga seluruh server bisa crash.
-    if (!model.isValidGroup(params.group)) {
-        return response.status(400).send({ error: true, message: "Parameter group tidak valid" });
-    }
-    if (!params.date || !moment(params.date).isValid()) {
-        return response.status(400).send({ error: true, message: "Parameter date tidak valid" });
-    }
-
     const limit = Number(request.query.limit)
     const offset = Number(request.query.offset)
     if (request.query.limit && request.query.offset) {
@@ -60,20 +50,17 @@ exports.findDaily = (request, response) => {
             params.offset = offset
         }
     }
-
-    // Tabel tidak lagi dibuat di sini; model.findDaily mengembalikan [] bila tabel hari itu belum ada.
+    
+    await model.create(params);
     model.findDaily(
         params,
         (err, data) => {
-            if (err) {
-                console.log("log.controller.js:findDaily", err.code || "", err.message);
+            if (err)
                 response.status(500).send({
-                    error: true,
-                    message: "Gagal mengambil data log"
+                    message:
+                        err.message || `Some error occurred while retrieving Test .`
                 });
-            } else {
-                response.json({ error: false, data });
-            }
+            else response.json({ error: false, data });
         }
     )
 

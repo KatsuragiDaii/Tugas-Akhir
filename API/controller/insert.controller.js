@@ -2,12 +2,15 @@ const Log = require("../models/log.model")
 
 exports.create = (params) => {
     return new Promise(
-        (resolve,reject) => {
-           Log.create(params).then(
+        (resolve, reject) => {
+            // console.log("controller/insert.controller.js:create", params.group)
+            Log.create(params).then(
                 data => {
+                    console.log("controller/insert.controller.js:9", params );
+                    Log.insert(params)
                     resolve(data)
                 }
-            ).catch (
+            ).catch(
                 error => {
                     reject(error)
                 }

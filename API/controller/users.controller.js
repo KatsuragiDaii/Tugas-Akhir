@@ -68,7 +68,7 @@ exports.login = (request, response) => {
       });
     } else {
       const json = JSON.parse(JSON.stringify(row));
-      // console.log("users.controller.js:login", json)
+      console.log("users.controller.js:login", json)
       const data = json.data;
       if (json.state) {
         bcrypt.compare(body.password, data.password, function (err, result) {

@@ -1,18 +1,19 @@
 const jwt = require('jsonwebtoken');
 
-exports.verifyToken = (req, res, next) => {
-    const header = req.headers['authorization'];
-    if (!header) return res.sendStatus(403);
-
-    // Terima token polos (seperti yang dikirim frontend) maupun format "Bearer <token>"
-    const token = header.startsWith('Bearer ') ? header.slice(7) : header;
-
-    // Dulu token dan isi decoded dicetak ke console; token adalah rahasia, jadi tidak lagi dicetak.
+exports.verifyToken = (req,res,next) => {
+    // const token = req.headers['authorization'];
+    const token = req.headers['authorization'];
+    // console.log("verifyToken.middleware access",req.headers)
+    if (!token) return res.sendStatus(403);
+    console.log("verifyToken.middleware access",token)
     jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
         if (err) {
-            return res.status(403).send({ error: true, message: err.message });
+            console.log("verifyToken.middleware access:error")
+            return res.status(403).send({error:true,message:err.message});
+        } else {
+            req.userId = decoded.id;
+            console.log("verifyToken.middleware access",decoded)
+            next();    
         }
-        req.userId = decoded.id;
-        next();
-    });
+    });    
 }

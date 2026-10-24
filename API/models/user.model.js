@@ -4,7 +4,7 @@ const Row = {}
 Row.tabelName = `users`
 
 Row.create = () => {
-    const query = `CREATE TABLE IF NOT EXISTS ${Row.tabelName}
+    let query = `CREATE TABLE IF NOT EXISTS ${Row.tabelName}
         ( 
             id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, 
             name varchar(255) NOT NULL, 
@@ -12,34 +12,37 @@ Row.create = () => {
             role enum('root', 'admin', 'dosen', 'asisten', 'praktikan') DEFAULT 'praktikan'
         ) 
         ENGINE=InnoDB DEFAULT CHARSET=utf8;`
-    sql.query(query, (err) => {
-        if (err) console.log("user.model.js:create error:", err.code, err.message);
-    });
+    // console.log("user.model.js:create", query)
+    try {
+        sql.query(query);
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 Row.insert = (tabelName, newData, result) => {
     sql.query(`INSERT INTO ${Row.tabelName} SET ?`, newData, (err, res) => {
         if (err) {
-            console.log("error: ", err.code, err.message);
+            console.log("error: ", err);
             result(err, null);
             return;
         }
 
-        console.log(`created ${Row.tabelName}: `, { id: res.insertId, name: newData.name });
+        console.log(`created ${Row.tabelName}: `, { id: res.insertId, ...newData });
         result(null, { id: res.insertId, ...newData });
     });
 };
 
 Row.findById = (id, result) => {
-    // "?" membuat nilai id di-escape otomatis (mencegah SQL injection)
-    sql.query(`SELECT * FROM ${Row.tabelName} WHERE id = ?`, [id], (err, res) => {
+    sql.query(`SELECT * FROM ${Row.tabelName} WHERE id = ${id}`, (err, res) => {
         if (err) {
-            console.log("error: ", err.code, err.message);
+            console.log("error: ", err);
             result(err, null);
             return;
         }
 
         if (res.length) {
+            console.log("found Row: ", res[0]);
             result(null, res[0]);
             return;
         }
@@ -50,30 +53,35 @@ Row.findById = (id, result) => {
 };
 
 Row.findByName = (name, result) => {
-    // Sebelumnya: WHERE name = "${name}" -> bisa dibobol dengan input seperti  " OR "1"="1
-    sql.query(`SELECT * FROM ${Row.tabelName} WHERE name = ?`, [name], (err, res) => {
+    const str = `SELECT * FROM ${Row.tabelName} WHERE name = "${name}"`
+    // console.log("Query: ", str);
+    sql.query(str, (err, res) => {
         if (err) {
-            console.log("error: ", err.code, err.message);
+            console.log("error: ", err);
             result(err, null);
             return;
         }
         if (res.length) {
+            // console.log("found Row: ", res[0]);
             result(null, { state: true, data: res[0] });
             return;
         }
 
-        // not found Row with the name
+        // not found Row with the id
         result(null, { state: false, code: -1, message: "user name not_found" }, null);
     });
 };
 
 Row.getAll = (result) => {
-    sql.query(`SELECT * FROM ${Row.tabelName} `, (err, res) => {
+
+    let query = `SELECT * FROM ${Row.tabelName} `
+    sql.query(query, (err, res) => {
         if (err) {
-            console.log("error: ", err.code, err.message);
-            result(err, null);      // dulu: result(null, err) -> error dikirim sebagai "data" dengan status 200
+            console.log("error: ", err);
+            result(null, err);
             return;
         }
+        // console.log("users.model.js:getAll", res);
         result(null, res);
     });
 };

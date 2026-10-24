@@ -4,7 +4,7 @@ import { createMemo, For, Show } from "solid-js";
 // tanpa file model. Bereaksi terhadap nilai kontrol:
 //   props.tilt       kemiringan panel, 0-90 derajat
 //   props.intensity  intensitas cahaya, 0-1200 W/m2
-//   props.fan        level kipas, 1-3
+//   props.fan        kipas menyala (true/false)
 //   props.heater     pemanas menyala (true/false)
 //   props.class      kelas CSS untuk <svg>
 // Untuk model 3D sungguhan (mis. three.js), ganti isi komponen ini dan pertahankan props-nya.
@@ -34,7 +34,7 @@ const panelPoint = (u, v, t) =>
   );
 
 const [FAN_X, FAN_Y] = proj(W - 26, 62, 52);
-const FAN_SECONDS = { 1: 1.6, 2: 0.9, 3: 0.45 };
+const FAN_SECONDS = 0.9; // detik per putaran saat kipas menyala
 const LAMPS = [18, 60, 102]; // posisi x lampu di dinding belakang
 
 // Bagian rak yang tidak pernah berubah
@@ -58,7 +58,6 @@ export default function Simulator3D(props) {
   const light = () => clamp(props.intensity, 0, 1200) / 1200;
   const tilt = () => clamp(props.tilt, 0, 90);
   const theta = () => (tilt() * Math.PI) / 180;
-  const fanSeconds = () => FAN_SECONDS[Math.round(clamp(props.fan, 1, 3))];
 
   const panel = () => {
     const t = theta();
@@ -92,7 +91,7 @@ export default function Simulator3D(props) {
 
   const label = () =>
     `Simulator PLTS: panel miring ${Math.round(tilt())} derajat, intensitas cahaya ${Math.round(clamp(props.intensity, 0, 1200))} watt per meter persegi, ` +
-    `kipas level ${Math.round(clamp(props.fan, 1, 3))}, pemanas ${props.heater ? "menyala" : "mati"}`;
+    `kipas ${props.fan ? "menyala" : "mati"}, pemanas ${props.heater ? "menyala" : "mati"}`;
 
   return (
     <svg viewBox="58 34 276 288" class={props.class} role="img" aria-label={label()}>
@@ -210,18 +209,25 @@ export default function Simulator3D(props) {
 
       {/* Kipas */}
       <line x1={FAN_X} y1={FAN_Y + 18} x2={FAN_X} y2={proj(W - 26, 62, 20)[1]} stroke="#555" stroke-width="5" />
-      <For each={[-8, 0, 8]}>
-        {(dy) => (
-          <line
-            x1={FAN_X - 24} y1={FAN_Y + dy} x2={FAN_X - 42} y2={FAN_Y + dy}
-            stroke="#5fb3cc" stroke-width="2" stroke-linecap="round" opacity="0.55"
-          />
-        )}
-      </For>
+      <Show when={props.fan}>
+        <For each={[-8, 0, 8]}>
+          {(dy) => (
+            <line
+              x1={FAN_X - 24} y1={FAN_Y + dy} x2={FAN_X - 42} y2={FAN_Y + dy}
+              stroke="#5fb3cc" stroke-width="2" stroke-linecap="round" opacity="0.55"
+            />
+          )}
+        </For>
+      </Show>
       <circle cx={FAN_X} cy={FAN_Y} r="19" fill="#e8ebef" stroke="#555" stroke-width="2" />
       <g
         class="sim-spin"
-        style={{ "transform-origin": `${FAN_X}px ${FAN_Y}px`, "animation-duration": `${fanSeconds()}s` }}
+        style={{
+          "transform-origin": `${FAN_X}px ${FAN_Y}px`,
+          "animation-duration": `${FAN_SECONDS}s`,
+          // saat dimatikan baling-baling berhenti di posisinya, bukan kembali ke awal
+          "animation-play-state": props.fan ? "running" : "paused",
+        }}
       >
         <For each={[0, 120, 240]}>
           {(a) => (

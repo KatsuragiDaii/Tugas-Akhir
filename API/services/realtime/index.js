@@ -13,18 +13,15 @@ const json = {
 
 module.exports = (server) => {
 
-    if (!process.env.MQTT_BROKER_HOST || !process.env.MQTT_PORT) {
-        console.warn("MQTT_BROKER_HOST / MQTT_PORT belum diisi di .env, koneksi MQTT kemungkinan gagal")
-    }
     const brokerUrl = `mqtt://${process.env.MQTT_BROKER_HOST}:${process.env.MQTT_PORT}`
     const TOPICS = require("./json/topics.json")
 
     const ioCorsOrigins = [
         `http://localhost:${process.env.CLIENT_SOCKET_PORT}`,
-        process.env.CLIENT_SOCKET_HOST
-    ].filter(Boolean)
+        `${process.env.CLIENT_SOCKET_HOST}`
+    ]
 
-    require("./mqtt.service")(brokerUrl, TOPICS, cbMqtt);
+    mqttSinergi = require("./mqtt.service")(brokerUrl, TOPICS, cbMqtt);
 
     require("./socket.service")(server, ioCorsOrigins, cbSocketIO)
         .then(
@@ -55,18 +52,13 @@ const ValueGenerator = (fieldValue, randomValue = 50, isToggle = false) => {
     return retValue;
 }
 
-let webcamStarted = false;
 const cbSocketIO = (ioObject, client) => {
 
     client.on(SOCKET_TAG.growattService, (data) => {
         console.log(data)
     })
 
-    // Dulu dijalankan lagi untuk SETIAP klien yang connect -> loop capture webcam menumpuk
-    if (process.env.APP_WEBCAM === "1" && !webcamStarted) {
-        webcamStarted = true;
-        require("../webcam")(ioObject);
-    }
+    if (process.env.APP_WEBCAM === "1") require("../webcam")(ioObject);
     console.log("Callback  by " + client.id);
 
 }
@@ -75,15 +67,14 @@ let count = [10, 10, 10, 10, 10]
 let fileExist = [false, false, false, false, false]
 let periode = [null, null, null, null, null]
 let lastPeriode = [null, null, null, null, null]
-let creating = [false, false, false, false, false]
-let nextTry = [0, 0, 0, 0, 0]
+
 const cbMqtt = (socket, group, code, data) => {
 
     let index = 0;
     let payload = { _terminalTime: data._terminalTime };
     data.code = code
 
-    // console.log("test", group)
+    // console.log("services/index.js", group, code)
     
     if (json && json[group] && json[group].data) {
 
@@ -96,34 +87,32 @@ const cbMqtt = (socket, group, code, data) => {
 
         periode[index] = moment(data._terminalTime).format("YYYYMMDD");
 
+        // console.log("services/realtime/index.js:90", group, index, periode[index], lastPeriode[index] )
         if (lastPeriode[index] !== periode[index]) {
             lastPeriode[index] = periode[index];
             fileExist[index] = false
-        }
-        // Membuat tabel harian. Dulu `fileExist` menjadi true walaupun query gagal (Promise selalu
-        // "berhasil"), jadi bila DB sedang mati tabel tidak pernah dibuat lagi. Sekarang:
-        //  - hanya ditandai ada bila CREATE TABLE benar-benar sukses
-        //  - tidak menumpuk query bila yang sebelumnya belum selesai (creating)
-        //  - bila gagal, coba lagi paling cepat 10 detik kemudian (nextTry)
-        if (!fileExist[index] && !creating[index] && Date.now() >= nextTry[index] && group !== SOCKET_TAG.pltmh) {
-            const day = periode[index];
-            creating[index] = true;
-            create({ group, periode: day, data: payload })
-                .then(() => { fileExist[index] = true; })
-                .catch((error) => {
-                    nextTry[index] = Date.now() + 10000;
-                    console.error(`[DB] Gagal membuat tabel ${group}_${day}: ${error.code || ""} ${error.message}`);
-                })
-                .finally(() => { creating[index] = false; });
+        } else {
+            fileExist[index] = true
         }
 
+        console.log("services/realtime/index.js:96", group, index, periode[index], fileExist[index] )
+        // if (!fileExist[index] && group !== SOCKET_TAG.pltmh) {
+        if (!fileExist[index]) {
+            // console.log("services/index.js:97", group  )
+            create({ group, periode: periode[index], data: payload }).then(
+                data => {
+                    fileExist[index] = true;
+                }
+            )
+        } else {
+            insert({ group, periode: periode[index], data: payload })
+        }
         count[index]++;
-        if (count[index] >= (Number(process.env.MQTT_SUBSCRIBE_COUNT) || 10)) {
-            // to change MySQL table name, just set periode ex: dayly name : YYYYMMDD, 20250105
+        if (count[index] >= process.env.MQTT_SUBSCRIBE_COUNT) {
+            // if (group === SOCKET_TAG.pltsPV) console.log("group", group, data._terminalTime)
+            // to change MySQL table name, just set periode ex: dayly name : YYYYMMDD, 20250105   
             // array count[?] count increment according to Gateway/HMI published interval
-            // Penyimpanan data realtime ke DB di-nonaktifkan secara bawaan (seperti kode awal).
-            // Aktifkan dengan DB_INSERT=1 di .env
-            if (process.env.DB_INSERT === "1" && fileExist[index]) insert({ group, periode: periode[index], data: payload })
+            //if (fileExist[index]) insert({ group, periode: periode[index], data: payload })
             count[index] = 0;
         }
 

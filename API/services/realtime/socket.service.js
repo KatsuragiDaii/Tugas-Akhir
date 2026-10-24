@@ -1,32 +1,30 @@
-const { Server } = require("socket.io");
 
-module.exports = (httpServer, corsOrigin, callback) => {
+const io = require("socket.io");
+
+module.exports = (host, corsOrigin, callback) => {
 
     console.log("Preparing socket server", corsOrigin)
 
-    // Sebelumnya `socket = io(...)` tanpa deklarasi (variabel global tak sengaja), dan Promise
-    // baru selesai setelah ADA klien pertama yang terhubung. Sekarang langsung siap.
-    const io = new Server(httpServer, {
-        cors: {
-            origin: corsOrigin,
-            credentials: true
+    return new Promise(
+        (resolve, reject) => {
+            socket = io(host, {
+                cors: {
+                    origin: corsOrigin,
+                    credentials: true
+                }
+            });
+            socket.on("connection", (client) => {
+
+                console.log("Socket connection was made by " + client.id);
+
+                client.on('disconnect', () => {
+                    console.log(client.id + "was disconnected ");
+                });
+
+                callback(socket, client);
+                resolve(socket)
+            })
         }
-    });
+    )
 
-    io.on("connection", (client) => {
-
-        console.log("Socket connection was made by " + client.id);
-
-        // reason membantu mencari tahu siapa yang memutus:
-        //  "transport close"            -> tab ditutup / halaman di-refresh
-        //  "client namespace disconnect"-> kode frontend memanggil socket.disconnect()
-        //  "ping timeout"               -> jaringan/klien tidak merespons
-        client.on("disconnect", (reason) => {
-            console.log(`${client.id} was disconnected (${reason})`);
-        });
-
-        callback(io, client);
-    })
-
-    return Promise.resolve(io);
 }

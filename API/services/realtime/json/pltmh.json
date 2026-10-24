@@ -1,10 +1,10 @@
 [
-    { "attr": "voltage", "field": "VOLTAGE", "dataType": "int" },
-    { "attr": "current", "field": "CURRENT", "dataType": "int" },
-    { "attr": "Pressure", "field": "PRESSURE", "dataType": "int" },
-    { "attr": "pumpSpeed", "field": "SPEED", "dataType": "int" },
-    { "attr": "flow", "field": "PLTMH_FLOW", "dataType": "int" },
-    { "attr": "rpm", "field": "PLTMH_RPM", "dataType": "int" },
+    { "attr": "voltage", "field": "VOLTAGE", "dataType": "float", "isDB": true },
+    { "attr": "current", "field": "CURRENT", "dataType": "float", "isDB": true },
+    { "attr": "Pressure", "field": "PRESSURE", "dataType": "float", "isDB": true },
+    { "attr": "pumpSpeed", "field": "SPEED", "dataType": "float", "isDB": true },
+    { "attr": "flow", "field": "PLTMH_FLOW", "dataType": "float", "isDB": true },
+    { "attr": "rpm", "field": "PLTMH_RPM", "dataType": "float", "isDB": true },
 
     { "attr": "peltonButton", "field": "PLTMH_SOL_PELTON", "dataType": "int" },
     { "attr": "kaplanButton", "field": "PLTMH_SOL_KAPLAN", "dataType": "int" },
