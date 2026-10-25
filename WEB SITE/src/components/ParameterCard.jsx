@@ -14,7 +14,8 @@ export default function ParameterCard(props) {
       <p class="relative text-[15px] sm:text-[17px] font-medium leading-snug text-sisgrid">{props.label}</p>
       <p class="relative mt-1 text-[28px] sm:text-[34px] xl:text-[40px] font-bold leading-none tabular-nums text-sisgrid-ink">
         {props.value}
-        {props.unit}
+        {/* satuan panjang (mis. "psi/bar", "m³/s") dikecilkan agar tidak keluar dari kartu di layar sempit */}
+        <span class={String(props.unit).trim().length > 3 ? "text-[0.5em] font-semibold" : ""}>{props.unit}</span>
       </p>
     </div>
   );

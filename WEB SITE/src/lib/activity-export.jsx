@@ -1,8 +1,10 @@
 import moment from "moment-timezone";
-import { PLTS_PARAMETERS } from "~/json/plts-parameter-json";
 
-// Export riwayat PLTS Activity ke CSV.
+// Export riwayat "Activity" (PLTS, PLTMH) ke CSV.
 // Berisi SEMUA parameter (bukan hanya yang sedang dipilih di grafik), satu baris per titik data.
+//
+// parameters: daftar parameter seperti di json/plts-parameter-json.jsx dan json/pltmh-parameter-json.jsx
+//             (memakai field key, label, unit)
 
 const TIMEZONE = "Asia/Jakarta"; // sama dengan halaman histories
 const BOM = "﻿";            // agar Excel membaca UTF-8 (tanpa ini "°C" menjadi rusak)
@@ -16,28 +18,29 @@ const cell = (value) => {
     return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 };
 
-// history: [{ t: waktu (ms), temperature, humidity, light, voltage, current, power }]
-export function buildPltsCsv(history) {
+// history: [{ t: waktu (ms), <key setiap parameter>: angka }]
+export function buildActivityCsv(parameters, history) {
     const header = [
         "No",
         "Waktu (WIB)",
-        ...PLTS_PARAMETERS.map((p) => `${p.label} (${unitOf(p)})`),
+        ...parameters.map((p) => `${p.label} (${unitOf(p)})`),
     ];
     const rows = history.map((point, index) => [
         index + 1,
         moment.tz(point.t, TIMEZONE).format("YYYY-MM-DD HH:mm:ss"),
-        ...PLTS_PARAMETERS.map((p) => Number(point[p.key]).toFixed(2)),
+        ...parameters.map((p) => Number(point[p.key]).toFixed(2)),
     ]);
     return BOM + [header, ...rows].map((row) => row.map(cell).join(",")).join("\r\n") + "\r\n";
 }
 
 // Mengunduh CSV di browser. Hanya dipanggil dari klik tombol (bukan saat render/SSR).
-export function downloadPltsCsv(history) {
-    const blob = new Blob([buildPltsCsv(history)], { type: "text/csv;charset=utf-8" });
+// filePrefix: awalan nama file, mis. "plts-activity" -> plts-activity_20261025-123000.csv
+export function downloadActivityCsv(parameters, history, filePrefix) {
+    const blob = new Blob([buildActivityCsv(parameters, history)], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `plts-activity_${moment.tz(TIMEZONE).format("YYYYMMDD-HHmmss")}.csv`;
+    link.download = `${filePrefix}_${moment.tz(TIMEZONE).format("YYYYMMDD-HHmmss")}.csv`;
     document.body.appendChild(link);
     link.click();
     link.remove();

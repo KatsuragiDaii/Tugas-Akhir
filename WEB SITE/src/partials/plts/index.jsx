@@ -3,31 +3,17 @@ import { A } from "@solidjs/router";
 import PageHeader from "~/components/PageHeader";
 import { SunIcon } from "~/components/icons";
 import Simulator3D from "~/components/simulator/Simulator3D";
+import SimulatorFallback from "~/components/simulator/SimulatorFallback";
+import { PV_CAMERA, createPvModel } from "~/components/simulator/pv-model";
 import SliderControl from "~/components/control/SliderControl";
 import SimToggle from "~/components/control/SimToggle";
-import { CONTROL_IDS } from "~/json/plts-parts-json";
+import { CONTROL_IDS, PLTS_PARTS } from "~/json/plts-parts-json";
+import { focusControl } from "~/lib/focus-control";
 import PltsParameters from "./parameters";
 import { pltsPraktikum } from "~/json/plts-praktikum-json";
 
 // Nilai awal simulator; juga dipakai tombol "Reset Parameter"
 const DEFAULTS = { tilt: 40, intensity: 800, fan: false, heater: false };
-
-// Saat bagian model 3D diklik, kontrol yang terkait difokuskan dan diberi penanda sesaat
-// (lihat .ctl-flash di app.css). preventScroll: halaman tidak ikut bergulir.
-const flashTimers = new WeakMap(); // satu pewaktu per kontrol, supaya klik berurutan tidak saling memotong
-
-function focusControl(controlKey) {
-  const element = controlKey ? document.getElementById(CONTROL_IDS[controlKey]) : null;
-  if (!element) return;
-  element.focus({ preventScroll: true });
-  const box = element.closest("[data-control-box]");
-  if (!box) return;
-  window.clearTimeout(flashTimers.get(box));
-  box.classList.remove("ctl-flash");
-  void box.offsetWidth; // mulai ulang animasi bila diklik berurutan
-  box.classList.add("ctl-flash");
-  flashTimers.set(box, window.setTimeout(() => box.classList.remove("ctl-flash"), 1600));
-}
 
 // Halaman /plts: simulator PLTS di kiri, kontrol di kanan.
 // Kontrol hanya mengatur simulasi di halaman ini. Belum ada perintah yang dikirim ke alat.
@@ -60,11 +46,21 @@ export default function ContentPLTS() {
           <div class="mt-3">
             <Simulator3D
               class="h-[340px] sm:h-[420px]"
-              tilt={tilt()}
-              intensity={intensity()}
-              fan={fan()}
-              heater={heater()}
-              onSelect={(part) => focusControl(part?.control)}
+              createModel={createPvModel}
+              camera={PV_CAMERA}
+              parts={PLTS_PARTS}
+              ariaLabel="Model 3D simulator PLTS"
+              state={{ tilt: tilt(), intensity: intensity(), fan: fan(), heater: heater() }}
+              fallback={() => (
+                <SimulatorFallback
+                  class="absolute inset-0 h-full w-full p-2"
+                  tilt={tilt()}
+                  intensity={intensity()}
+                  fan={fan()}
+                  heater={heater()}
+                />
+              )}
+              onSelect={(part) => focusControl(CONTROL_IDS[part?.control])}
             />
           </div>
         </section>

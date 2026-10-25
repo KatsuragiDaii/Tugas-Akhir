@@ -249,5 +249,8 @@ export function createPvModel(THREE, { reducedMotion = false } = {}) {
 
   setState(target, true);
 
-  return { root, parts, pickables, panel, setState, tick, busy, meshesFor, dispose };
+  // Panel miring saat slider digeser, jadi kotak sorotannya harus dihitung ulang tiap frame
+  const dynamicParts = new Set(["Panel surya"]);
+
+  return { root, parts, pickables, panel, setState, tick, busy, meshesFor, dispose, dynamicParts };
 }

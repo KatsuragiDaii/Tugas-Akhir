@@ -1,6 +1,6 @@
 import { createEffect, onCleanup, onMount } from "solid-js";
 
-// Grafik garis realtime bergaya SISGRID untuk satu parameter.
+// Grafik garis realtime bergaya SISGRID untuk satu parameter (halaman PLTS dan PLTMH).
 // ApexCharts dimuat dinamis di browser agar aman dari error SSR ("window is not defined").
 //
 // props.series  [{ x: waktu (ms), y: nilai }], urut waktu
@@ -10,7 +10,7 @@ import { createEffect, onCleanup, onMount } from "solid-js";
 //
 // Berbeda dengan components/chart/GrafikTrent.jsx, satuan tooltip di sini ikut diperbarui
 // saat props berubah, sehingga satu grafik bisa dipakai untuk beberapa parameter.
-export default function PltsActivityChart(props) {
+export default function ActivityChart(props) {
   let el;
   let chart;
   let disposed = false;

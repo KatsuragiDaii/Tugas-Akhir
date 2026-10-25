@@ -120,6 +120,18 @@ export function DownloadIcon(props) {
   );
 }
 
+// Manometer: setengah lingkaran dengan jarum (untuk parameter Pressure)
+export function PressureIcon(props) {
+  return (
+    <svg {...svgProps(props)} stroke-width="2.2">
+      <path d="M3.5 17a8.5 8.5 0 1 1 17 0" />
+      <path d="M12 17 16.2 9.8" />
+      <circle cx="12" cy="17" r="1.4" fill="currentColor" stroke="none" />
+      <path d="M6.2 11.2l1.3.8M12 6.8v1.5M17.8 11.2l-1.3.8" />
+    </svg>
+  );
+}
+
 export function ResetViewIcon(props) {
   return (
     <svg {...svgProps(props)} stroke-width="2.2">
@@ -146,12 +158,15 @@ export function ChevronDownIcon(props) {
   );
 }
 
-// Dipetakan dari field `icon` di json/plts-parameter-json.jsx
+// Dipetakan dari field `icon` di json/plts-parameter-json.jsx dan json/pltmh-parameter-json.jsx
 const PARAM_ICONS = {
   thermometer: ThermometerIcon,
   humidity: HumidityIcon,
   bulb: BulbIcon,
   bolt: BoltIcon,
+  drop: DropIcon,
+  gauge: PressureIcon,
+  rotate: RotateIcon,
 };
 
 export function ParamIcon(props) {

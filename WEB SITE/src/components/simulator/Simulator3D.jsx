@@ -1,31 +1,34 @@
 import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
-import SimulatorFallback from "./SimulatorFallback";
 import { ResetViewIcon, RotateIcon } from "~/components/icons";
-import { PLTS_PARTS, partInfo } from "~/json/plts-parts-json";
-import { PV_CAMERA, createPvModel } from "./pv-model";
 
-// Simulator 3D PLTS yang interaktif (Three.js):
+// Simulator 3D interaktif (Three.js), dipakai halaman PLTS dan PLTMH:
 //   - seret untuk memutar, scroll/cubit untuk zoom, seret klik-kanan atau dua jari untuk menggeser
 //   - klik sebuah bagian: bagian itu disorot dan namanya muncul (label di atas model + keterangan di bawahnya)
-//   - bagian yang punya kontrol (panel, lampu, kipas, pemanas) ikut memanggil props.onSelect
-//     sehingga halaman bisa memfokuskan kontrol yang terkait
+//   - bagian yang punya kontrol ikut memanggil props.onSelect sehingga halaman bisa
+//     memfokuskan kontrol yang terkait
 //   - tombol pilih (chip) di bawah model: cara memilih bagian lewat keyboard atau layar sentuh
 //
 // Model 3D dan pengaturan kamera/cahaya dipindahkan dari repo Virtual-Lab-Smartgrid
 // (https://github.com/goesaditya/Virtual-Lab-Smartgrid, dikirim oleh pemilik proyek ini).
-// Geometri ada di pv-model.js; daftar nama dan keterangan bagian ada di json/plts-parts-json.jsx.
+// Komponen ini tidak tahu bentuk modelnya; model disediakan lewat props.createModel:
+//   PLTS  -> pv-model.js,    daftar bagian json/plts-parts-json.jsx
+//   PLTMH -> hydro-model.js, daftar bagian json/pltmh-parts-json.jsx
 //
 // Props:
-//   tilt        kemiringan panel, 0-90 derajat
-//   intensity   intensitas cahaya, 0-1200 W/m2
-//   fan         kipas menyala (true/false)
-//   heater      pemanas menyala (true/false)
-//   class       kelas CSS untuk area model (tentukan tingginya di sini, mis. "h-[380px]")
-//   onSelect    dipanggil dengan info bagian ({ name, description, control }) saat bagian dipilih,
-//               dan dengan null saat pilihan dihapus
+//   createModel  fungsi (THREE, { reducedMotion }) => model. Model mengembalikan:
+//                  root, pickables, setState(state, snap), tick(dt, waktu), busy(),
+//                  meshesFor(nama, mesh), dispose(), dan (opsional) dynamicParts: Set nama
+//                  bagian yang ukuran sorotannya berubah saat bergerak
+//   camera       { position: [x, y, z], target: [x, y, z] } tampilan awal kamera
+//   parts        daftar bagian { name, description, control, chip } (nama harus sama dengan di model)
+//   state        keadaan simulasi, diteruskan ke model.setState; boleh objek reaktif
+//   ariaLabel    deskripsi singkat model untuk pembaca layar
+//   fallback     fungsi () => JSX untuk tampilan cadangan bila browser tanpa WebGL (opsional)
+//   class        kelas CSS untuk area model (tentukan tingginya di sini, mis. "h-[380px]")
+//   onSelect     dipanggil dengan info bagian ({ name, description, control }) saat bagian dipilih,
+//                dan dengan null saat pilihan dihapus
 //
 // Three.js dimuat dinamis di browser (tidak ikut di server maupun di bundel awal halaman).
-// Bila browser tidak mendukung WebGL, yang tampil adalah gambar SVG biasa (SimulatorFallback).
 
 const CLICK_SLOP_PX = 5; // geser kurang dari ini dianggap klik, bukan memutar model
 
@@ -41,6 +44,7 @@ export default function Simulator3D(props) {
   const [selected, setSelected] = createSignal(null);  // nama bagian yang dipilih
   const [rotating, setRotating] = createSignal(false);
 
+  const partInfo = (name) => props.parts?.find((part) => part.name === name);
   const info = () => (selected() ? partInfo(selected()) ?? { name: selected() } : null);
 
   // onCleanup harus didaftarkan sebelum ada `await` (setelah itu konteks Solid hilang),
@@ -54,7 +58,7 @@ export default function Simulator3D(props) {
 
   // Nilai kontrol dari halaman diteruskan ke model
   createEffect(() => {
-    const state = { tilt: props.tilt, intensity: props.intensity, fan: props.fan, heater: props.heater };
+    const state = props.state; // dibaca di luar `if` agar efek selalu melacaknya
     if (status() === "ready") api.model.setState(state);
   });
 
@@ -92,16 +96,16 @@ export default function Simulator3D(props) {
     canvas.setAttribute("role", "img");
     canvas.setAttribute(
       "aria-label",
-      "Model 3D simulator PLTS. Pilih bagiannya lewat tombol di bawah model, atau klik langsung pada model."
+      `${props.ariaLabel ?? "Model 3D simulator"}. Pilih bagiannya lewat tombol di bawah model, atau klik langsung pada model.`
     );
     host.appendChild(canvas);
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
-    camera.position.set(...PV_CAMERA.position);
+    camera.position.set(...props.camera.position);
 
     const controls = new OrbitControls(camera, canvas);
-    controls.target.set(...PV_CAMERA.target);
+    controls.target.set(...props.camera.target);
     controls.enableDamping = !reducedMotion;
     controls.minDistance = 2.5;
     controls.maxDistance = 10;
@@ -130,9 +134,9 @@ export default function Simulator3D(props) {
     scene.add(grid);
 
     // ---- Model PLTS ----
-    const model = createPvModel(THREE, { reducedMotion });
+    const model = props.createModel(THREE, { reducedMotion });
     scene.add(model.root);
-    model.setState({ tilt: props.tilt, intensity: props.intensity, fan: props.fan, heater: props.heater }, true);
+    model.setState(props.state, true);
 
     // ---- Penanda bagian terpilih: kotak tembus pandang + garis tepi yang tetap terlihat ----
     const selection = new THREE.Group();
@@ -198,7 +202,7 @@ export default function Simulator3D(props) {
 
     const renderNow = () => {
       if (selectedName) {
-        if (selectedName === "Panel surya") updateSelectionBox(); // ikut miring bersama panel
+        if (model.dynamicParts?.has(selectedName)) updateSelectionBox(); // bagian yang ikut bergerak (mis. panel miring)
         placeLabel();
       }
       renderer.render(scene, camera);
@@ -302,8 +306,8 @@ export default function Simulator3D(props) {
     canvas.addEventListener("webglcontextrestored", onContextRestored);
 
     // ---- Kamera ----
-    const homePosition = new THREE.Vector3(...PV_CAMERA.position);
-    const homeTarget = new THREE.Vector3(...PV_CAMERA.target);
+    const homePosition = new THREE.Vector3(...props.camera.position);
+    const homeTarget = new THREE.Vector3(...props.camera.target);
     // Hentikan sisa gerak (inersia) kamera: dipakai saat reset dan saat putar otomatis dimatikan
     const stopInertia = () => {
       controls.enableDamping = false;
@@ -413,19 +417,13 @@ export default function Simulator3D(props) {
         </Show>
 
         <Show when={status() === "fallback"}>
-          <SimulatorFallback
-            class="absolute inset-0 h-full w-full p-2"
-            tilt={props.tilt}
-            intensity={props.intensity}
-            fan={props.fan}
-            heater={props.heater}
-          />
-          <p
-            class="absolute bottom-2 left-3 right-3 text-center text-xs text-gray-600"
-            data-testid="sim3d-fallback-note"
-          >
-            Browser ini tidak mendukung WebGL, jadi yang tampil gambar statis (tidak bisa diputar atau diklik).
-          </p>
+          {/* Gambar cadangan mengisi ruang di atas; catatan di bawahnya tidak menimpa gambar */}
+          <div class="absolute inset-0 flex flex-col">
+            <div class="relative min-h-0 flex-1">{props.fallback?.()}</div>
+            <p class="px-3 pb-2 pt-1 text-center text-xs text-gray-600" data-testid="sim3d-fallback-note">
+              Browser ini tidak mendukung WebGL, jadi yang tampil gambar statis (tidak bisa diputar atau diklik).
+            </p>
+          </div>
         </Show>
 
         <Show when={status() === "ready"}>
@@ -469,7 +467,7 @@ export default function Simulator3D(props) {
 
         {/* Pilih bagian lewat tombol: untuk keyboard dan layar sentuh */}
         <div role="group" aria-label="Pilih bagian simulator" class="flex flex-wrap gap-2">
-          <For each={PLTS_PARTS.filter((part) => part.chip)}>
+          <For each={(props.parts ?? []).filter((part) => part.chip)}>
             {(part) => (
               <button
                 type="button"
