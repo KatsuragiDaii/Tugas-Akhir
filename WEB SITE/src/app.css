@@ -46,7 +46,7 @@
   box-shadow: 0 0 0 3px rgba(0, 77, 92, 0.3);
 }
 
-/* ---------- Animasi simulator (Simulator3D.jsx) ---------- */
+/* ---------- Animasi simulator (SimulatorFallback.jsx) ---------- */
 @keyframes sim-spin {
   to {
     transform: rotate(360deg);
@@ -75,6 +75,28 @@
 @media (prefers-reduced-motion: reduce) {
   .sim-spin,
   .sim-heat {
+    animation: none;
+  }
+}
+
+/* Penanda sesaat pada kontrol yang terkait dengan bagian model 3D yang diklik (halaman /plts) */
+@keyframes ctl-flash {
+  0%, 60% {
+    outline-color: rgba(0, 150, 168, 0.95);
+  }
+  100% {
+    outline-color: rgba(0, 150, 168, 0);
+  }
+}
+
+.ctl-flash {
+  outline: 3px solid rgba(0, 150, 168, 0.95);
+  outline-offset: 4px;
+  animation: ctl-flash 1.6s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctl-flash {
     animation: none;
   }
 }

@@ -5,13 +5,15 @@
 // props.unit     satuan (opsional), mis. "°" atau "W/m²"
 // props.min/max  batas; props.step (default 1)
 // props.value    nilai saat ini; props.onInput(angka) dipanggil saat slider digeser
+// props.id       id elemen slider (opsional; bawaannya diturunkan dari label). Dipakai Simulator3D
+//                untuk memfokuskan slider ini saat bagian model yang terkait diklik.
 export default function SliderControl(props) {
 
-  const id = `slider-${String(props.label).toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+  const id = props.id ?? `slider-${String(props.label).toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
   const percent = () => ((props.value - props.min) / (props.max - props.min)) * 100;
 
   return (
-    <div class="font-poppins">
+    <div class="font-poppins rounded-lg" data-control-box>
       <div class="flex items-baseline justify-between gap-2">
         <label for={id} class="text-[15px] font-medium text-sisgrid">
           {props.label}

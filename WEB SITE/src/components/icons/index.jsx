@@ -120,6 +120,24 @@ export function DownloadIcon(props) {
   );
 }
 
+export function ResetViewIcon(props) {
+  return (
+    <svg {...svgProps(props)} stroke-width="2.2">
+      <path d="M4 11.5 12 4.5l8 7M6.5 10v9.5h11V10" />
+      <path d="M10 19.5v-5h4v5" />
+    </svg>
+  );
+}
+
+export function RotateIcon(props) {
+  return (
+    <svg {...svgProps(props)} stroke-width="2.2">
+      <path d="M20 12a8 8 0 1 1-2.6-5.9" />
+      <path d="M20.5 3.5v4.8h-4.8" />
+    </svg>
+  );
+}
+
 export function ChevronDownIcon(props) {
   return (
     <svg {...svgProps(props)} stroke-width="2.5">

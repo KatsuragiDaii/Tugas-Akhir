@@ -5,11 +5,29 @@ import { SunIcon } from "~/components/icons";
 import Simulator3D from "~/components/simulator/Simulator3D";
 import SliderControl from "~/components/control/SliderControl";
 import SimToggle from "~/components/control/SimToggle";
+import { CONTROL_IDS } from "~/json/plts-parts-json";
 import PltsParameters from "./parameters";
 import { pltsPraktikum } from "~/json/plts-praktikum-json";
 
 // Nilai awal simulator; juga dipakai tombol "Reset Parameter"
 const DEFAULTS = { tilt: 40, intensity: 800, fan: false, heater: false };
+
+// Saat bagian model 3D diklik, kontrol yang terkait difokuskan dan diberi penanda sesaat
+// (lihat .ctl-flash di app.css). preventScroll: halaman tidak ikut bergulir.
+const flashTimers = new WeakMap(); // satu pewaktu per kontrol, supaya klik berurutan tidak saling memotong
+
+function focusControl(controlKey) {
+  const element = controlKey ? document.getElementById(CONTROL_IDS[controlKey]) : null;
+  if (!element) return;
+  element.focus({ preventScroll: true });
+  const box = element.closest("[data-control-box]");
+  if (!box) return;
+  window.clearTimeout(flashTimers.get(box));
+  box.classList.remove("ctl-flash");
+  void box.offsetWidth; // mulai ulang animasi bila diklik berurutan
+  box.classList.add("ctl-flash");
+  flashTimers.set(box, window.setTimeout(() => box.classList.remove("ctl-flash"), 1600));
+}
 
 // Halaman /plts: simulator PLTS di kiri, kontrol di kanan.
 // Kontrol hanya mengatur simulasi di halaman ini. Belum ada perintah yang dikirim ke alat.
@@ -39,13 +57,14 @@ export default function ContentPLTS() {
 
         <section class="rounded-3xl border-2 border-sisgrid-line bg-white p-6" aria-labelledby="sim-title">
           <h2 id="sim-title" class="text-2xl font-bold">Simulator 3D</h2>
-          <div class="mt-2 flex justify-center">
+          <div class="mt-3">
             <Simulator3D
-              class="h-[320px] w-auto max-w-full"
+              class="h-[340px] sm:h-[420px]"
               tilt={tilt()}
               intensity={intensity()}
               fan={fan()}
               heater={heater()}
+              onSelect={(part) => focusControl(part?.control)}
             />
           </div>
         </section>
@@ -53,8 +72,9 @@ export default function ContentPLTS() {
         <section class="flex flex-col gap-4 rounded-3xl border-2 border-sisgrid-line bg-white p-6" aria-labelledby="ctl-title">
           <h2 id="ctl-title" class="text-[26px] font-bold leading-tight">Kontrol Simulator</h2>
 
-          <SliderControl label="Kemiringan Panel" unit="°" min={0} max={90} value={tilt()} onInput={setTilt} />
+          <SliderControl id={CONTROL_IDS.tilt} label="Kemiringan Panel" unit="°" min={0} max={90} value={tilt()} onInput={setTilt} />
           <SliderControl
+            id={CONTROL_IDS.light}
             label="Intensitas Cahaya"
             unit="W/m²"
             min={0}
@@ -64,8 +84,8 @@ export default function ContentPLTS() {
             onInput={setIntensity}
           />
 
-          <SimToggle label="Fan/Kipas" checked={fan()} onChange={setFan} />
-          <SimToggle label="Heater/Pemanas" checked={heater()} onChange={setHeater} />
+          <SimToggle id={CONTROL_IDS.fan} label="Fan/Kipas" checked={fan()} onChange={setFan} />
+          <SimToggle id={CONTROL_IDS.heater} label="Heater/Pemanas" checked={heater()} onChange={setHeater} />
 
           <button
             type="button"
