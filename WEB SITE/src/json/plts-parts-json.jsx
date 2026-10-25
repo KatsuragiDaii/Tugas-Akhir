@@ -23,8 +23,6 @@ export const PLTS_PARTS = [
       description: "Menyala atau mati lewat tombol Fan/Kipas." },
     { name: "Pemanas (Heater)", chip: true, control: "heater",
       description: "Menyala atau mati lewat tombol Heater/Pemanas." },
-    { name: "Sprayer", chip: true, control: null,
-      description: "Penyemprot air. Belum ada kontrolnya di halaman ini." },
     { name: "Kontrol PV", chip: true, control: null,
       description: "Unit kontrol dan instrumen ukur pada prototipe." },
     { name: "Kabinet PV", chip: true, control: null,

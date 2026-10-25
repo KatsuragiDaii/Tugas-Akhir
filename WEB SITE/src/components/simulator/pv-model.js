@@ -135,9 +135,6 @@ export function createPvModel(THREE, { reducedMotion = false } = {}) {
       root, "Lampu simulator")
   );
 
-  // ---- Sprayer (di model asli; belum punya kontrol) ----
-  box(0.12, 0.19, 0.15, 0.43, 0.45, 0.2, M.cyan, root, "Sprayer");
-
   // ---- Pemanas (tambahan): kotak di rak dasar, kumparan menyala saat aktif ----
   const HEATER = "Pemanas (Heater)";
   box(0.34, 0.1, 0.2, -0.28, 0.36, 0.2, M.dark, root, HEATER);
