@@ -16,7 +16,7 @@ export default function MainLayoutResponsive(props) {
 
     // Halaman yang sudah memakai tampilan baru (header sendiri, tanpa MyNavBar putih).
     // Untuk menerapkan ke halaman lain, tambahkan path-nya di sini.
-    const REDESIGNED_PATHS = ["/plts"];
+    const REDESIGNED_PATHS = ["/plts", "/pltmh"];
     const redesigned = () => REDESIGNED_PATHS.includes(location.pathname.replace(/\/+$/, ""));
 
     onMount(

@@ -3,11 +3,13 @@
 // props.label     teks di bar
 // props.checked   true bila menyala
 // props.onChange  dipanggil dengan nilai baru saat saklar diklik
+// props.id        id tombol saklar (opsional); dipakai Simulator3D untuk memfokuskannya
 export default function SimToggle(props) {
   return (
-    <div class="flex items-center rounded-lg bg-sisgrid px-4 py-3 font-poppins text-white">
+    <div class="flex items-center rounded-lg bg-sisgrid px-4 py-3 font-poppins text-white" data-control-box>
       <span class="flex-1 text-center text-[15px] font-bold">{props.label}</span>
       <button
+        id={props.id}
         type="button"
         role="switch"
         aria-checked={props.checked}

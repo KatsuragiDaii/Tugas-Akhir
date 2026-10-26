@@ -3,8 +3,12 @@ import { A } from "@solidjs/router";
 import PageHeader from "~/components/PageHeader";
 import { SunIcon } from "~/components/icons";
 import Simulator3D from "~/components/simulator/Simulator3D";
+import SimulatorFallback from "~/components/simulator/SimulatorFallback";
+import { PV_CAMERA, createPvModel } from "~/components/simulator/pv-model";
 import SliderControl from "~/components/control/SliderControl";
 import SimToggle from "~/components/control/SimToggle";
+import { CONTROL_IDS, PLTS_PARTS } from "~/json/plts-parts-json";
+import { focusControl } from "~/lib/focus-control";
 import PltsParameters from "./parameters";
 import { pltsPraktikum } from "~/json/plts-praktikum-json";
 
@@ -39,13 +43,24 @@ export default function ContentPLTS() {
 
         <section class="rounded-3xl border-2 border-sisgrid-line bg-white p-6" aria-labelledby="sim-title">
           <h2 id="sim-title" class="text-2xl font-bold">Simulator 3D</h2>
-          <div class="mt-2 flex justify-center">
+          <div class="mt-3">
             <Simulator3D
-              class="h-[320px] w-auto max-w-full"
-              tilt={tilt()}
-              intensity={intensity()}
-              fan={fan()}
-              heater={heater()}
+              class="h-[340px] sm:h-[420px]"
+              createModel={createPvModel}
+              camera={PV_CAMERA}
+              parts={PLTS_PARTS}
+              ariaLabel="Model 3D simulator PLTS"
+              state={{ tilt: tilt(), intensity: intensity(), fan: fan(), heater: heater() }}
+              fallback={() => (
+                <SimulatorFallback
+                  class="absolute inset-0 h-full w-full p-2"
+                  tilt={tilt()}
+                  intensity={intensity()}
+                  fan={fan()}
+                  heater={heater()}
+                />
+              )}
+              onSelect={(part) => focusControl(CONTROL_IDS[part?.control])}
             />
           </div>
         </section>
@@ -53,8 +68,9 @@ export default function ContentPLTS() {
         <section class="flex flex-col gap-4 rounded-3xl border-2 border-sisgrid-line bg-white p-6" aria-labelledby="ctl-title">
           <h2 id="ctl-title" class="text-[26px] font-bold leading-tight">Kontrol Simulator</h2>
 
-          <SliderControl label="Kemiringan Panel" unit="°" min={0} max={90} value={tilt()} onInput={setTilt} />
+          <SliderControl id={CONTROL_IDS.tilt} label="Kemiringan Panel" unit="°" min={0} max={90} value={tilt()} onInput={setTilt} />
           <SliderControl
+            id={CONTROL_IDS.light}
             label="Intensitas Cahaya"
             unit="W/m²"
             min={0}
@@ -64,8 +80,8 @@ export default function ContentPLTS() {
             onInput={setIntensity}
           />
 
-          <SimToggle label="Fan/Kipas" checked={fan()} onChange={setFan} />
-          <SimToggle label="Heater/Pemanas" checked={heater()} onChange={setHeater} />
+          <SimToggle id={CONTROL_IDS.fan} label="Fan/Kipas" checked={fan()} onChange={setFan} />
+          <SimToggle id={CONTROL_IDS.heater} label="Heater/Pemanas" checked={heater()} onChange={setHeater} />
 
           <button
             type="button"
