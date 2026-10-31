@@ -2,7 +2,7 @@
 // (lihat .ctl-flash di app.css). Dipakai halaman PLTS dan PLTMH.
 //
 // Kontrol dicari lewat id elemen; kotak penandanya adalah leluhur terdekat yang
-// memiliki atribut data-control-box (lihat SliderControl, SimToggle, PumpSpeedControl).
+// memiliki atribut data-control-box (lihat SliderControl, SimToggle, SpeedControl).
 // preventScroll: halaman tidak ikut bergulir.
 
 const flashTimers = new WeakMap(); // satu pewaktu per kontrol, supaya klik berurutan tidak saling memotong

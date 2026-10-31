@@ -7,13 +7,15 @@ import { downloadActivityCsv } from "~/lib/activity-export";
 // Jumlah titik yang digambar di grafik; seluruh riwayat tetap ikut di export CSV
 const CHART_POINTS = 30;
 
-// Satu angka desimal; nilai tak valid ditampilkan 0.0
-const format = (n) => (Number.isFinite(n) ? n : 0).toFixed(1);
+// Nilai di kartu: satu angka desimal kecuali parameter menentukan lain (field `decimals`);
+// nilai tak valid ditampilkan 0
+const format = (n, decimals = 1) => (Number.isFinite(n) ? n : 0).toFixed(decimals);
 
 // Enam kartu parameter + grafik "Activity" (dengan pilihan parameter dan export CSV).
-// Dipakai halaman PLTS dan PLTMH; datanya pembacaan live dari alat, bukan dari kontrol simulator.
+// Dipakai halaman PLTS, PLTMH, dan PLTB; datanya pembacaan live dari alat, bukan dari kontrol simulator.
 //
-// props.parameters   daftar parameter { key, label, unit, chartUnit, icon } (lihat json/*-parameter-json.jsx)
+// props.parameters   daftar parameter { key, label, unit, chartUnit, icon, decimals? } (lihat json/*-parameter-json.jsx);
+//                    decimals = jumlah angka di belakang koma pada kartu (default 1)
 // props.defaultKey   parameter yang dipilih di grafik saat halaman dibuka
 // props.readings     fungsi () => { [key]: angka } nilai terbaru, untuk kartu
 // props.history      fungsi () => [{ t, [key]: angka }] riwayat, untuk grafik dan CSV
@@ -42,7 +44,7 @@ export default function ActivityPanel(props) {
           {(p) => (
             <ParameterCard
               label={p.label}
-              value={format(props.readings()[p.key])}
+              value={format(props.readings()[p.key], p.decimals)}
               unit={p.unit}
               icon={<ParamIcon name={p.icon} class="h-9 w-9 sm:h-16 sm:w-16" />}
             />

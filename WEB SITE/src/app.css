@@ -46,10 +46,16 @@
   box-shadow: 0 0 0 3px rgba(0, 77, 92, 0.3);
 }
 
-/* ---------- Animasi simulator (SimulatorFallback.jsx) ---------- */
+/* ---------- Animasi simulator (SimulatorFallback*.jsx) ---------- */
 @keyframes sim-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes sim-flow {
+  to {
+    stroke-dashoffset: -18;
   }
 }
 
@@ -72,9 +78,16 @@
   animation: sim-heat 1.6s ease-in-out infinite;
 }
 
+/* Garis aliran udara (SimulatorFallbackWind.jsx): garis putus-putus yang bergeser searah aliran */
+.sim-flow {
+  stroke-dasharray: 9 9;
+  animation: sim-flow linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sim-spin,
-  .sim-heat {
+  .sim-heat,
+  .sim-flow {
     animation: none;
   }
 }

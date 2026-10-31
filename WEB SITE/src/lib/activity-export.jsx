@@ -1,10 +1,11 @@
 import moment from "moment-timezone";
 
-// Export riwayat "Activity" (PLTS, PLTMH) ke CSV.
+// Export riwayat "Activity" (PLTS, PLTMH, PLTB) ke CSV.
 // Berisi SEMUA parameter (bukan hanya yang sedang dipilih di grafik), satu baris per titik data.
 //
-// parameters: daftar parameter seperti di json/plts-parameter-json.jsx dan json/pltmh-parameter-json.jsx
-//             (memakai field key, label, unit)
+// parameters: daftar parameter seperti di json/plts-parameter-json.jsx, json/pltmh-parameter-json.jsx, dan
+//             json/pltb-parameter-json.jsx (memakai field key, label, unit, dan decimals; default 2 angka
+//             di belakang koma)
 
 const TIMEZONE = "Asia/Jakarta"; // sama dengan halaman histories
 const BOM = "﻿";            // agar Excel membaca UTF-8 (tanpa ini "°C" menjadi rusak)
@@ -28,7 +29,7 @@ export function buildActivityCsv(parameters, history) {
     const rows = history.map((point, index) => [
         index + 1,
         moment.tz(point.t, TIMEZONE).format("YYYY-MM-DD HH:mm:ss"),
-        ...parameters.map((p) => Number(point[p.key]).toFixed(2)),
+        ...parameters.map((p) => Number(point[p.key]).toFixed(p.decimals ?? 2)),
     ]);
     return BOM + [header, ...rows].map((row) => row.map(cell).join(",")).join("\r\n") + "\r\n";
 }

@@ -1,15 +1,16 @@
-// Kontrol kecepatan pompa bergaya SISGRID: label, tombol kurang/tambah bulat di kiri-kanan angka
-// kecepatan, dan batang kemajuan di bawahnya.
+// Kontrol kecepatan bergaya SISGRID (pompa PLTMH, kipas PLTB): label, tombol kurang/tambah bulat
+// di kiri-kanan angka kecepatan, dan batang kemajuan di bawahnya.
 //
 // props.label        teks label
-// props.valueText    kecepatan yang ditampilkan, mis. "25.00 Hz"
+// props.valueText    kecepatan yang ditampilkan, mis. "25.00 Hz" atau "Step 4 / 10"
 // props.percent      0-100, panjang batang kemajuan
 // props.onDecrease   dipanggil saat tombol kurang diklik
 // props.onIncrease   dipanggil saat tombol tambah diklik
 // props.minDisabled  true bila tidak bisa dikurangi lagi (mis. kecepatan sudah 0 di mode simulasi)
 // props.maxDisabled  true bila tidak bisa ditambah lagi
 // props.id           id tombol tambah (opsional); dipakai Simulator3D untuk memfokuskan kontrol ini
-export default function PumpSpeedControl(props) {
+// props.decreaseLabel / props.increaseLabel  nama tombol untuk pembaca layar, mis. "Kurangi kecepatan pompa"
+export default function SpeedControl(props) {
 
   const round =
     "grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-sisgrid transition hover:bg-emerald-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white";
@@ -22,7 +23,7 @@ export default function PumpSpeedControl(props) {
         <button
           type="button"
           class={round}
-          aria-label="Kurangi kecepatan pompa"
+          aria-label={props.decreaseLabel ?? "Kurangi kecepatan"}
           disabled={props.minDisabled}
           onClick={() => props.onDecrease()}
         >
@@ -39,7 +40,7 @@ export default function PumpSpeedControl(props) {
           id={props.id}
           type="button"
           class={round}
-          aria-label="Tambah kecepatan pompa"
+          aria-label={props.increaseLabel ?? "Tambah kecepatan"}
           disabled={props.maxDisabled}
           onClick={() => props.onIncrease()}
         >
