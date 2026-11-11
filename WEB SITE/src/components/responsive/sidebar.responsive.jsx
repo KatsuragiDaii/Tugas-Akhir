@@ -19,7 +19,7 @@ export default function Sidebar(props) {
         return !!(item.roles && item.roles.includes(role));
     };
 
-    // "/plts" juga aktif saat berada di "/plts/pv", "/plts/ongrid", dst.
+    // "/plts" juga aktif saat berada di "/plts/ongrid", "/plts/offgrid", dst.
     const isActive = (item) =>
         location.pathname === item.url || location.pathname.startsWith(`${item.url}/`);
 
@@ -27,7 +27,10 @@ export default function Sidebar(props) {
         <aside class="hidden md:flex w-[216px] shrink-0 h-full flex-col bg-sisgrid text-white font-poppins">
             {/* Logo: ganti public/sisgrid-logo.svg dengan logo aslinya */}
             <a href="/dashboard" class="flex items-center gap-2.5 px-6 pt-7 pb-9">
-                <img src="/sisgrid-logo.svg" alt="Sisgrid Logo" class="w-40 h-auto shrink-0" />
+                <img src="/sisgrid-logo.svg" alt="" class="w-11 h-11 shrink-0" />
+                <span class="font-bold text-[15px] leading-[1.1] tracking-wide">
+                    SISGRID<br />LABORATORY
+                </span>
             </a>
 
             <nav class="px-2.5" aria-label="Menu utama">

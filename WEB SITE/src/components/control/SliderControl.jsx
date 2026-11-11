@@ -5,6 +5,9 @@
 // props.unit     satuan (opsional), mis. "°" atau "W/m²"
 // props.min/max  batas; props.step (default 1)
 // props.value    nilai saat ini; props.onInput(angka) dipanggil saat slider digeser
+// props.onCommit (opsional) dipanggil sekali dengan nilai akhir saat slider dilepas (atau tombol
+//                panah keyboard ditekan). Dipakai bila tiap perubahan harus dikirim ke alat dan
+//                tidak boleh menembakkan perintah selama slider masih digeser.
 // props.id       id elemen slider (opsional; bawaannya diturunkan dari label). Dipakai Simulator3D
 //                untuk memfokuskan slider ini saat bagian model yang terkait diklik.
 export default function SliderControl(props) {
@@ -33,6 +36,7 @@ export default function SliderControl(props) {
         value={props.value}
         style={{ "--fill": `${percent()}%` }}
         onInput={(event) => props.onInput(Number(event.currentTarget.value))}
+        onChange={(event) => props.onCommit?.(Number(event.currentTarget.value))}
       />
       <div class="mt-1 flex justify-between text-[10px] text-sisgrid">
         <span>

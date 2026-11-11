@@ -4,7 +4,7 @@ import { DropIcon } from "~/components/icons";
 import Simulator3D from "~/components/simulator/Simulator3D";
 import SimulatorFallbackHydro from "~/components/simulator/SimulatorFallbackHydro";
 import { HYDRO_CAMERA, createHydroModel } from "~/components/simulator/hydro-model";
-import PumpSpeedControl from "~/components/control/PumpSpeedControl";
+import SpeedControl from "~/components/control/SpeedControl";
 import SimToggle from "~/components/control/SimToggle";
 import ActivityPanel from "~/components/ActivityPanel";
 import { UseAuthCtx } from "~/context/auth.context";
@@ -125,8 +125,10 @@ export default function ContentPLTMH() {
               : "Mode simulasi: alat belum mengirim data. Kontrol hanya mengubah model 3D dan tidak mengirim perintah ke alat."}
           </p>
 
-          <PumpSpeedControl
+          <SpeedControl
             id={CONTROL_IDS.pump}
+            decreaseLabel="Kurangi kecepatan pompa"
+            increaseLabel="Tambah kecepatan pompa"
             label="Pump Speed Control"
             valueText={`${(pumpFraction() * PUMP_MAX_HZ).toFixed(2)} Hz`}
             percent={pumpFraction() * 100}

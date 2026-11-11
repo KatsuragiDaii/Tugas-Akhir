@@ -6,7 +6,8 @@
 //  - chip        : true bila bagian ditampilkan sebagai tombol pilih (akses keyboard / layar sentuh)
 // Bagian yang tidak tercantum di sini tetap bisa diklik; yang tampil hanya namanya.
 
-// id elemen kontrol di halaman /plts (partials/plts/index.jsx)
+// id elemen kontrol di halaman /plts (partials/plts/index.jsx). Kemiringan berupa slider saat simulasi
+// dan tombol naik/turun saat alat online; id yang sama dipakai keduanya (hanya satu yang ada di halaman).
 export const CONTROL_IDS = {
     tilt: "ctl-tilt",
     light: "ctl-light",
@@ -16,9 +17,9 @@ export const CONTROL_IDS = {
 
 export const PLTS_PARTS = [
     { name: "Panel surya", chip: true, control: "tilt",
-      description: "Sudutnya mengikuti slider Kemiringan Panel (0° mendatar, 90° tegak)." },
+      description: "Sudutnya mengikuti kontrol Kemiringan Panel (0° mendatar, 90° tegak)." },
     { name: "Lampu simulator", chip: true, control: "light",
-      description: "Sumber cahaya pengganti matahari; terangnya mengikuti slider Intensitas Cahaya." },
+      description: "Sumber cahaya pengganti matahari; terangnya mengikuti kontrol Intensitas Cahaya." },
     { name: "Kipas (Fan)", chip: true, control: "fan",
       description: "Menyala atau mati lewat tombol Fan/Kipas." },
     { name: "Pemanas (Heater)", chip: true, control: "heater",

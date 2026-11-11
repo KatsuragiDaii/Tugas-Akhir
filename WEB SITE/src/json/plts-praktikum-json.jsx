@@ -1,5 +1,7 @@
 // Data praktikum PLTS (dipindahkan apa adanya dari partials/plts/index.jsx).
 // title/url/description dipakai untuk tautan di halaman /plts; extraInfo = deskripsi lengkap praktikum.
+// Praktikum PV tidak lagi punya halaman sendiri: kontrolnya menyatu di halaman /plts, jadi url-nya
+// "/plts" dan tidak ditampilkan sebagai tautan di halaman itu.
 export const pltsPraktikum = [
   {
     title: "PV",
@@ -9,7 +11,7 @@ Dalam praktikum ini, mahasiswa akan mempelajari:
 - Analisis karakteristik modul surya seperti tegangan, arus, dan daya.
 - Penerapan alat ukur untuk menentukan efisiensi sistem PV.
 Praktikum ini menjadi dasar penting untuk memahami teknologi energi terbarukan terutama pada pemanfaatan energi surya.`,
-    url: "/plts/pv",
+    url: "/plts",
     imageUrl: "/plts.jpg",
 
   },

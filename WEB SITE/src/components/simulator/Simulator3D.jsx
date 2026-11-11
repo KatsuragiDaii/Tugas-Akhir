@@ -1,7 +1,7 @@
 import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { ResetViewIcon, RotateIcon } from "~/components/icons";
 
-// Simulator 3D interaktif (Three.js), dipakai halaman PLTS dan PLTMH:
+// Simulator 3D interaktif (Three.js), dipakai halaman PLTS, PLTMH, dan PLTB:
 //   - seret untuk memutar, scroll/cubit untuk zoom, seret klik-kanan atau dua jari untuk menggeser
 //   - klik sebuah bagian: bagian itu disorot dan namanya muncul (label di atas model + keterangan di bawahnya)
 //   - bagian yang punya kontrol ikut memanggil props.onSelect sehingga halaman bisa
@@ -13,12 +13,15 @@ import { ResetViewIcon, RotateIcon } from "~/components/icons";
 // Komponen ini tidak tahu bentuk modelnya; model disediakan lewat props.createModel:
 //   PLTS  -> pv-model.js,    daftar bagian json/plts-parts-json.jsx
 //   PLTMH -> hydro-model.js, daftar bagian json/pltmh-parts-json.jsx
+//   PLTB  -> wind-model.js,  daftar bagian json/pltb-parts-json.jsx
 //
 // Props:
 //   createModel  fungsi (THREE, { reducedMotion }) => model. Model mengembalikan:
 //                  root, pickables, setState(state, snap), tick(dt, waktu), busy(),
 //                  meshesFor(nama, mesh), dispose(), dan (opsional) dynamicParts: Set nama
-//                  bagian yang ukuran sorotannya berubah saat bergerak
+//                  bagian yang ukuran sorotannya berubah saat bergerak, serta lowPriorityParts:
+//                  Set nama bagian tembus pandang (mis. kaca) yang hanya dipilih bila tidak ada
+//                  bagian lain di belakangnya pada titik klik
 //   camera       { position: [x, y, z], target: [x, y, z] } tampilan awal kamera
 //   parts        daftar bagian { name, description, control, chip } (nama harus sama dengan di model)
 //   state        keadaan simulasi, diteruskan ke model.setState; boleh objek reaktif
@@ -236,7 +239,10 @@ export default function Simulator3D(props) {
       const rect = canvas.getBoundingClientRect();
       ndc.set(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
       ray.setFromCamera(ndc, camera);
-      return ray.intersectObjects(model.pickables, false)[0]?.object ?? null;
+      const hits = ray.intersectObjects(model.pickables, false);
+      // Bagian tembus pandang (kaca) tidak boleh menutupi bagian di belakangnya
+      const hit = hits.find((h) => !model.lowPriorityParts?.has(h.object.userData.partName)) ?? hits[0];
+      return hit?.object ?? null;
     };
 
     const pressed = new Map(); // pointerId -> posisi awal; dipakai membedakan klik dari memutar/cubit
