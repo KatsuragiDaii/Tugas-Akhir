@@ -19,7 +19,7 @@ export default function Sidebar(props) {
         return !!(item.roles && item.roles.includes(role));
     };
 
-    // "/plts" juga aktif saat berada di "/plts/pv", "/plts/ongrid", dst.
+    // "/plts" juga aktif saat berada di "/plts/ongrid", "/plts/offgrid", dst.
     const isActive = (item) =>
         location.pathname === item.url || location.pathname.startsWith(`${item.url}/`);
 

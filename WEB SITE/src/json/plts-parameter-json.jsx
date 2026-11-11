@@ -1,5 +1,5 @@
 // Parameter yang ditampilkan di bawah simulator halaman /plts (kartu + dropdown grafik).
-//  - key       : kunci di objek `readings` (lib/plts-readings.jsx)
+//  - key       : kunci di objek `readings` (lib/plts-live.jsx)
 //  - unit      : satuan di kartu, sudah termasuk spasi bila perlu
 //  - chartUnit : satuan di atas sumbu Y grafik
 //  - icon      : nama ikon, lihat PARAM_ICONS di components/icons/index.jsx

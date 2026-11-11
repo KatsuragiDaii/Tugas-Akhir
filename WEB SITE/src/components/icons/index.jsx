@@ -150,6 +150,16 @@ export function RotateIcon(props) {
   );
 }
 
+// Simbol daya (tombol "Trigger Lampu" halaman PLTS)
+export function PowerIcon(props) {
+  return (
+    <svg {...svgProps(props)} stroke-width="2.2">
+      <path d="M12 3v8" />
+      <path d="M6.3 6.9a8 8 0 1 0 11.4 0" />
+    </svg>
+  );
+}
+
 // Kipas tiga bilah (kartu parameter "Fan Step" halaman PLTB)
 export function FanIcon(props) {
   const blade = "M12 12C9.4 9.6 9.2 5 12 2.6c2.8 2.4 2.6 7 0 9.4z";

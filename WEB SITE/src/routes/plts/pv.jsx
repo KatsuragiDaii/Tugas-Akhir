@@ -1,12 +1,7 @@
-import { SOCKET_TAG } from "~/json/socket-tag-json";
-import ContentLayout from "~/partials/layout/content.layout.jsx";
-import ContentPV from "~/partials/plts/pv";
+import { Navigate } from "@solidjs/router";
 
-export default function PV(props) {
-
-  return (
-    <ContentLayout title={"PV"} >
-        <ContentPV />
-    </ContentLayout>
-  );
+// Halaman PV sudah menyatu di halaman PLTS (/plts). Rute lama dipertahankan supaya bookmark dan
+// tautan lama tetap berfungsi.
+export default function PV() {
+  return <Navigate href="/plts" />;
 }
